@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpact - Comptabilité</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../modules/simpact-theme.css">
+    <style>
+        .revenue-card {
+            background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+            color: white;
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .revenue-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .revenue-amount {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: var(--space-md) 0;
+            font-family: var(--font-mono);
+        }
+        
+        .period-tabs {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .period-tab {
+            padding: var(--space-sm) var(--space-lg);
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .period-tab.active {
+            background: var(--color-compta);
+            color: white;
+        }
+        
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .breakdown-card {
+            background: var(--bg-secondary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--color-compta);
+        }
+        
+        .breakdown-name {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .breakdown-amount {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .breakdown-count {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: var(--space-xs);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>💰 Comptabilité</h1>
+                <p class="header-subtitle">Tableau de bord financier</p>
+            </div>
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <span class="user-badge" id="user-name">--</span>
+                <button class="btn btn-secondary" onclick="window.location.href='../dashboard.html'">
+                    📊 Dashboard
+                </button>
+                <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Sélection période -->
+        <div class="period-tabs">
+            <button class="period-tab active" onclick="setPeriod('today')">Aujourd'hui</button>
+            <button class="period-tab" onclick="setPeriod('week')">Cette semaine</button>
+            <button class="period-tab" onclick="setPeriod('month')">Ce mois</button>
+            <button class="period-tab" onclick="setPeriod('all')">Tout</button>
+        </div>
+
+        <!-- Chiffre d'affaires -->
+        <div class="revenue-card">
+            <div class="revenue-label">Chiffre d'Affaires</div>
+            <div class="revenue-amount" id="revenue-total">0.00 DT</div>
+            <div id="revenue-period">Aujourd'hui</div>
+        </div>
+
+        <!-- Détail par produit -->
+        <h2 style="margin-bottom: var(--space-lg);">Détail par Produit</h2>
+        <div class="breakdown-grid" id="breakdown-container">
+            <!-- Rempli dynamiquement -->
+        </div>
+
+        <!-- Historique -->
+        <div class="card">
+            <h3 class="card-title">Historique des Commandes</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Référence</th>
+                            <th>Client</th>
+                            <th>Produit</th>
+                            <th>Montant</th>
+                            <th>Statut Paiement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../modules/simpact-core.js"></script>
+    <script>
+        const user = SimpactCore.auth.checkAuth(['compta', 'admin', 'superadmin']);
+        document.getElementById('user-name').textContent = user.name;
+
+        let currentPeriod = 'today';
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const labels = {
+                'today': 'Aujourd\'hui',
+                'week': 'Cette semaine',
+                'month': 'Ce mois',
+                'all': 'Total'
+            };
+            document.getElementById('revenue-period').textContent = labels[period];
+            
+            loadData();
+        }
+
+        function loadData() {
+            const orders = SimpactCore.orders.getAll();
+            let filtered = orders;
+            
+            // Filtrer selon période
+            const now = new Date();
+            if (currentPeriod === 'today') {
+                const today = now.toLocaleDateString();
+                filtered = orders.filter(o => o.date === today);
+            } else if (currentPeriod === 'week') {
+                const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                filtered = orders.filter(o => new Date(o.date) >= weekAgo);
+            } else if (currentPeriod === 'month') {
+                filtered = orders.filter(o => {
+                    const d = new Date(o.date);
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                });
+            }
+
+            // Calcul CA total
+            const total = filtered.reduce((sum, o) => sum + parseFloat(o.price || 0), 0);
+            document.getElementById('revenue-total').textContent = total.toFixed(2) + ' DT';
+
+            // Breakdown par produit
+            const byProduct = {};
+            filtered.forEach(o => {
+                if (!byProduct[o.prod]) {
+                    byProduct[o.prod] = { amount: 0, count: 0 };
+                }
+                byProduct[o.prod].amount += parseFloat(o.price || 0);
+                byProduct[o.prod].count += 1;
+            });
+
+            // Trier par montant décroissant
+            const sorted = Object.entries(byProduct).sort((a, b) => b[1].amount - a[1].amount);
+            
+            const breakdownContainer = document.getElementById('breakdown-container');
+            if (sorted.length === 0) {
+                breakdownContainer.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">Aucune donnée</p>';
+            } else {
+                breakdownContainer.innerHTML = sorted.map(([prod, data]) => `
+                    <div class="breakdown-card">
+                        <div class="breakdown-name">${prod}</div>
+                        <div class="breakdown-amount">${data.amount.toFixed(2)} DT</div>
+                        <div class="breakdown-count">${data.count} commande${data.count > 1 ? 's' : ''}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Tableau historique
+            const tbody = document.getElementById('orders-table');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Aucune commande</td></tr>';
+            } else {
+                tbody.innerHTML = filtered.slice(0, 50).map(o => `
+                    <tr>
+                        <td style="color: var(--text-secondary);">${o.date}</td>
+                        <td style="font-family: var(--font-mono);">${o.ref}</td>
+                        <td><strong>${o.client}</strong></td>
+                        <td>${o.prod}</td>
+                        <td style="font-family: var(--font-mono); font-weight: 600;">${parseFloat(o.price).toFixed(2)} DT</td>
+                        <td>
+                            <span class="badge ${o.statusCompta === 'Payé' ? 'badge-success' : 'badge-warning'}">
+                                ${o.statusCompta}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Temps réel
+        if (typeof BroadcastChannel !== 'undefined') {
+            const channel = new BroadcastChannel('simpact_orders');
+            channel.onmessage = () => loadData();
+        }
+
+        // Init
+        loadData();
+        setInterval(loadData, 10000); // Refresh toutes les 10s
+    </script>
+</body>
+</html>

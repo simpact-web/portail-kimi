@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpact - Gestion Stock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../modules/simpact-theme.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--color-secondary);
+        }
+        
+        .stat-card.alert {
+            border-left-color: var(--color-danger);
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+        
+        .paper-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        
+        .paper-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .paper-card.alert-low {
+            border-left: 5px solid var(--color-danger);
+        }
+        
+        .paper-card.alert-medium {
+            border-left: 5px solid var(--color-warning);
+        }
+        
+        .paper-card.alert-ok {
+            border-left: 5px solid var(--color-success);
+        }
+        
+        .paper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+        
+        .paper-type {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .paper-specs {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .paper-qty {
+            text-align: center;
+            padding: var(--space-lg) 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin: var(--space-md) 0;
+        }
+        
+        .qty-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            font-family: var(--font-mono);
+        }
+        
+        .qty-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .paper-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+        
+        .filters {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .filter-chip {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .filter-chip.active {
+            background: var(--color-secondary);
+            color: white;
+            border-color: var(--color-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stock-header">
+            <div>
+                <h1>📦 Gestion Stock Papier</h1>
+                <p class="header-subtitle">Suivi des matières premières</p>
+            </div>
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <span class="user-badge" id="user-name">--</span>
+                <button class="btn btn-secondary" onclick="window.location.href='../dashboard.html'">
+                    📊 Dashboard
+                </button>
+                <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-xs);">Types de Papier</div>
+                <div style="font-size: 2rem; font-weight: 700;" id="stat-types">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-xs);">Stock Total</div>
+                <div style="font-size: 2rem; font-weight: 700;" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-xs);">Valeur Stock</div>
+                <div style="font-size: 2rem; font-weight: 700;" id="stat-value">0 DT</div>
+            </div>
+            <div class="stat-card alert" id="stat-alert-card" style="display: none;">
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-xs);">Alertes Stock Bas</div>
+                <div style="font-size: 2rem; font-weight: 700; color: var(--color-danger);" id="stat-alerts">0</div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openPaperModal()">
+                ➕ Ajouter Papier
+            </button>
+            <button class="btn btn-secondary" onclick="exportPDF()">
+                📊 Rapport PDF
+            </button>
+            <button class="btn btn-secondary" onclick="openHistoryModal()">
+                📜 Historique
+            </button>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="🔍 Rechercher un papier..." onkeyup="renderStock()">
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-chip active" onclick="filterStatus('all')">Tous</button>
+            <button class="filter-chip" onclick="filterStatus('ok')">✅ Stock OK</button>
+            <button class="filter-chip" onclick="filterStatus('medium')">⚠️ Stock Moyen</button>
+            <button class="filter-chip" onclick="filterStatus('low')">🔴 Réappro</button>
+        </div>
+
+        <!-- Stock Grid -->
+        <div id="stock-grid" class="stock-grid">
+            <p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: var(--space-2xl);">
+                Chargement du stock...
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Ajout/Edit Papier -->
+    <div id="paper-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="paper-modal-title">Ajouter un Papier</h3>
+                <button class="modal-close" onclick="closeModal('paper-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="paper-form" onsubmit="event.preventDefault(); savePaper();">
+                    <input type="hidden" id="paper-id">
+                    
+                    <div class="form-group">
+                        <label>Type de Papier *</label>
+                        <select id="paper-category" required>
+                            <option value="">-- Sélectionner --</option>
+                            <optgroup label="Papiers Couchés">
+                                <option value="Couché Brillant">Couché Brillant</option>
+                                <option value="Couché Mat">Couché Mat</option>
+                            </optgroup>
+                            <optgroup label="Papiers Offset">
+                                <option value="Offset Blanc">Offset Blanc</option>
+                                <option value="Offset Ivoire">Offset Ivoire</option>
+                            </optgroup>
+                            <optgroup label="Cartons">
+                                <option value="Carton Plat">Carton Plat</option>
+                                <option value="Bristol">Bristol</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Grammage (g/m²) *</label>
+                            <select id="paper-weight" required>
+                                <option value="80">80 g/m²</option>
+                                <option value="90">90 g/m²</option>
+                                <option value="115">115 g/m²</option>
+                                <option value="135">135 g/m²</option>
+                                <option value="170">170 g/m²</option>
+                                <option value="200">200 g/m²</option>
+                                <option value="250">250 g/m²</option>
+                                <option value="300">300 g/m²</option>
+                                <option value="350">350 g/m²</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Format *</label>
+                            <select id="paper-format" required>
+                                <option value="A4">A4</option>
+                                <option value="A3">A3</option>
+                                <option value="A5">A5</option>
+                                <option value="SRA3">SRA3</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantité Actuelle *</label>
+                            <input type="number" id="paper-qty" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Seuil d'Alerte *</label>
+                            <input type="number" id="paper-threshold" required min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Prix Unitaire (DT)</label>
+                        <input type="number" id="paper-price" step="0.001" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fournisseur</label>
+                        <input type="text" id="paper-supplier" placeholder="Ex: Papeterie du Nord">
+                    </div>
+                    
+                    <div style="display: flex; gap: var(--space-md); margin-top: var(--space-xl);">
+                        <button type="submit" class="btn btn-success btn-block">💾 Enregistrer</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('paper-modal')">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Mouvement -->
+    <div id="movement-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="movement-title">Mouvement de Stock</h3>
+                <button class="modal-close" onclick="closeModal('movement-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="movement-form" onsubmit="event.preventDefault(); saveMovement();">
+                    <input type="hidden" id="movement-paper-id">
+                    <input type="hidden" id="movement-type">
+                    
+                    <div class="form-group">
+                        <label>Quantité *</label>
+                        <input type="number" id="movement-qty" required min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Motif *</label>
+                        <select id="movement-reason" required>
+                            <option value="">-- Sélectionner --</option>
+                            <optgroup label="Entrées">
+                                <option value="Achat fournisseur">Achat fournisseur</option>
+                                <option value="Retour client">Retour client</option>
+                            </optgroup>
+                            <optgroup label="Sorties">
+                                <option value="Production commande">Production commande</option>
+                                <option value="Perte/Casse">Perte/Casse</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Référence</label>
+                        <input type="text" id="movement-ref" placeholder="N° BL ou Commande">
+                    </div>
+                    
+                    <div style="display: flex; gap: var(--space-md); margin-top: var(--space-xl);">
+                        <button type="submit" class="btn btn-success btn-block">✅ Valider</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('movement-modal')">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../modules/simpact-core.js"></script>
+    <script>
+        const user = SimpactCore.auth.checkAuth(['production', 'admin', 'superadmin']);
+        document.getElementById('user-name').textContent = user.name;
+
+        let currentFilter = 'all';
+
+        function renderStock() {
+            const stock = SimpactCore.stock.getAll();
+            const search = document.getElementById('search-input').value.toLowerCase();
+            
+            // Filtrer
+            let filtered = stock.filter(p => {
+                const matchSearch = !search || 
+                    p.category.toLowerCase().includes(search) ||
+                    p.format.toLowerCase().includes(search);
+                
+                const status = getStockStatus(p);
+                const matchStatus = currentFilter === 'all' || status === currentFilter;
+                
+                return matchSearch && matchStatus;
+            });
+
+            // Stats
+            const stats = SimpactCore.stock.getStats();
+            document.getElementById('stat-types').textContent = stats.totalTypes;
+            document.getElementById('stat-total').textContent = stats.totalQty.toLocaleString();
+            document.getElementById('stat-value').textContent = stats.totalValue.toFixed(2) + ' DT';
+            
+            if (stats.alerts > 0) {
+                document.getElementById('stat-alert-card').style.display = 'block';
+                document.getElementById('stat-alerts').textContent = stats.alerts;
+            } else {
+                document.getElementById('stat-alert-card').style.display = 'none';
+            }
+
+            // Render grid
+            const grid = document.getElementById('stock-grid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1; padding: var(--space-2xl);">Aucun papier trouvé</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(paper => {
+                const status = getStockStatus(paper);
+                const statusClass = 'alert-' + status;
+                const value = paper.qty * (paper.price || 0);
+                
+                return `
+                    <div class="paper-card ${statusClass}">
+                        <div class="paper-header">
+                            <div>
+                                <div class="paper-type">${paper.category}</div>
+                                <div class="paper-specs">${paper.weight}g/m² • ${paper.format}</div>
+                            </div>
+                            <span class="badge ${status === 'ok' ? 'badge-success' : status === 'medium' ? 'badge-warning' : 'badge-danger'}">
+                                ${status === 'ok' ? 'OK' : status === 'medium' ? 'Moyen' : 'Bas'}
+                            </span>
+                        </div>
+                        
+                        <div class="paper-qty">
+                            <div class="qty-number">${paper.qty.toLocaleString()}</div>
+                            <div class="qty-label">feuilles (seuil: ${paper.threshold})</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: var(--space-md);">
+                            <span style="color: var(--text-secondary);">Valeur:</span>
+                            <span style="font-weight: 600;">${value.toFixed(2)} DT</span>
+                        </div>
+                        
+                        <div class="paper-actions">
+                            <button class="btn btn-success btn-sm" onclick="openMovementModal('${paper.id}', 'in')">➕ Entrée</button>
+                            <button class="btn btn-danger btn-sm" onclick="openMovementModal('${paper.id}', 'out')">➖ Sortie</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editPaper('${paper.id}')">✏️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStockStatus(paper) {
+            const pct = (paper.qty / paper.threshold) * 100;
+            if (pct > 150) return 'ok';
+            if (pct > 100) return 'medium';
+            return 'low';
+        }
+
+        function filterStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            renderStock();
+        }
+
+        // Modals
+        function openPaperModal() {
+            document.getElementById('paper-form').reset();
+            document.getElementById('paper-id').value = '';
+            document.getElementById('paper-modal-title').textContent = 'Ajouter un Papier';
+            document.getElementById('paper-modal').classList.add('active');
+        }
+
+        function openMovementModal(paperId, type) {
+            document.getElementById('movement-form').reset();
+            document.getElementById('movement-paper-id').value = paperId;
+            document.getElementById('movement-type').value = type;
+            document.getElementById('movement-title').textContent = type === 'in' ? '➕ Entrée de Stock' : '➖ Sortie de Stock';
+            document.getElementById('movement-modal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function editPaper(id) {
+            const paper = SimpactCore.stock.getAll().find(p => p.id === id);
+            if (!paper) return;
+            
+            document.getElementById('paper-id').value = paper.id;
+            document.getElementById('paper-category').value = paper.category;
+            document.getElementById('paper-weight').value = paper.weight;
+            document.getElementById('paper-format').value = paper.format;
+            document.getElementById('paper-qty').value = paper.qty;
+            document.getElementById('paper-threshold').value = paper.threshold;
+            document.getElementById('paper-price').value = paper.price || '';
+            document.getElementById('paper-supplier').value = paper.supplier || '';
+            
+            document.getElementById('paper-modal-title').textContent = 'Modifier le Papier';
+            document.getElementById('paper-modal').classList.add('active');
+        }
+
+        function savePaper() {
+            const id = document.getElementById('paper-id').value || 'PAPER-' + Date.now();
+            const paper = {
+                id,
+                category: document.getElementById('paper-category').value,
+                weight: parseInt(document.getElementById('paper-weight').value),
+                format: document.getElementById('paper-format').value,
+                qty: parseInt(document.getElementById('paper-qty').value),
+                threshold: parseInt(document.getElementById('paper-threshold').value),
+                price: parseFloat(document.getElementById('paper-price').value) || 0,
+                supplier: document.getElementById('paper-supplier').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            let stock = SimpactCore.stock.getAll();
+            const idx = stock.findIndex(p => p.id === id);
+            if (idx >= 0) stock[idx] = paper;
+            else stock.push(paper);
+            
+            localStorage.setItem('SIMPACT_STOCK', JSON.stringify(stock));
+            closeModal('paper-modal');
+            renderStock();
+        }
+
+        function saveMovement() {
+            const paperId = document.getElementById('movement-paper-id').value;
+            const type = document.getElementById('movement-type').value;
+            const qty = parseInt(document.getElementById('movement-qty').value);
+            
+            let stock = SimpactCore.stock.getAll();
+            const paper = stock.find(p => p.id === paperId);
+            if (!paper) return;
+            
+            if (type === 'in') {
+                paper.qty += qty;
+            } else {
+                paper.qty -= qty;
+                if (paper.qty < 0) paper.qty = 0;
+            }
+            
+            localStorage.setItem('SIMPACT_STOCK', JSON.stringify(stock));
+            
+            // Historique
+            const movement = {
+                id: 'MOV-' + Date.now(),
+                paperId,
+                paperName: `${paper.category} ${paper.weight}g ${paper.format}`,
+                type,
+                qty,
+                reason: document.getElementById('movement-reason').value,
+                ref: document.getElementById('movement-ref').value,
+                date: new Date().toLocaleString(),
+                user: user.name
+            };
+            
+            let movements = SimpactCore.stock.getMovements();
+            movements.unshift(movement);
+            if (movements.length > 200) movements.pop();
+            localStorage.setItem('SIMPACT_STOCK_MOVEMENTS', JSON.stringify(movements));
+            
+            closeModal('movement-modal');
+            renderStock();
+            
+            // Notification
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('simpact_stock');
+                channel.postMessage({ type: 'STOCK_UPDATE', paperId });
+            }
+        }
+
+        function openHistoryModal() {
+            alert('Historique complet à implémenter (voir console)');
+            console.log(SimpactCore.stock.getMovements());
+        }
+
+        function exportPDF() {
+            alert('Export PDF à implémenter');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // Init
+        renderStock();
+        setInterval(renderStock, 30000);
+    </script>
+</body>
+</html>

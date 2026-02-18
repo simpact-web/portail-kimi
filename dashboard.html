@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpact - Tableau de Bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="modules/simpact-theme.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: var(--space-md);
+        }
+        
+        .widget-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .widget-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .widget-item:last-child {
+            border-bottom: none;
+        }
+        
+        .widget-item-info h4 {
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .widget-item-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .widget-item-meta {
+            text-align: right;
+        }
+        
+        .widget-item-price {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .widget-item-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-full);
+            margin-top: var(--space-xs);
+        }
+        
+        .stock-alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .stock-alert-name {
+            font-weight: 600;
+        }
+        
+        .stock-alert-qty {
+            color: var(--color-danger);
+            font-weight: 700;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-xl);
+        }
+        
+        .nav-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-decoration: none;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .nav-card-icon {
+            font-size: 2.5rem;
+        }
+        
+        .nav-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .nav-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Tableau de Bord</h1>
+                <p class="header-subtitle">Vue d'ensemble de l'activité</p>
+            </div>
+            <div class="quick-actions">
+                <span class="user-badge" id="user-name">--</span>
+                <button class="btn btn-secondary" onclick="window.location.href='pages/stock.html'">
+                    📦 Stock
+                </button>
+                <button class="btn btn-danger" onclick="logout()">
+                    Déconnexion
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats globales -->
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left-color: var(--color-success);">
+                <div class="stat-label">CA Aujourd'hui</div>
+                <div class="stat-value" id="stat-revenue">0 DT</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--color-production);">
+                <div class="stat-label">En Production</div>
+                <div class="stat-value" id="stat-production">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--color-warning);">
+                <div class="stat-label">Alertes Stock</div>
+                <div class="stat-value" id="stat-alerts">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--color-commercial);">
+                <div class="stat-label">Commandes du jour</div>
+                <div class="stat-value" id="stat-orders">0</div>
+            </div>
+        </div>
+
+        <!-- Widgets -->
+        <div class="dashboard-grid">
+            <!-- File de production -->
+            <div class="widget widget-production">
+                <div class="widget-header">
+                    <span class="widget-title">🔥 File de Production</span>
+                    <a href="pages/production.html" class="btn btn-sm btn-ghost">Voir tout</a>
+                </div>
+                <div class="widget-list" id="production-list">
+                    <p style="color: var(--text-muted); text-align: center; padding: var(--space-xl);">
+                        Chargement...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Alertes stock -->
+            <div class="widget widget-admin">
+                <div class="widget-header">
+                    <span class="widget-title">📦 Alertes Stock</span>
+                    <a href="pages/stock.html" class="btn btn-sm btn-ghost">Gérer</a>
+                </div>
+                <div id="stock-alerts">
+                    <p style="color: var(--text-muted); text-align: center; padding: var(--space-xl);">
+                        Chargement...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Dernières commandes -->
+            <div class="widget widget-commercial">
+                <div class="widget-header">
+                    <span class="widget-title">📋 Dernières Commandes</span>
+                    <a href="pages/commercial.html" class="btn btn-sm btn-ghost">Voir tout</a>
+                </div>
+                <div class="widget-list" id="orders-list">
+                    <p style="color: var(--text-muted); text-align: center; padding: var(--space-xl);">
+                        Chargement...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Accès rapide -->
+            <div class="widget widget-admin">
+                <div class="widget-header">
+                    <span class="widget-title">🚀 Navigation Rapide</span>
+                </div>
+                <div class="nav-grid" style="margin: 0;">
+                    <a href="pages/commercial.html" class="nav-card">
+                        <span class="nav-card-icon">💼</span>
+                        <span class="nav-card-title">Nouvelle Commande</span>
+                        <span class="nav-card-desc">Créer un devis ou commande client</span>
+                    </a>
+                    <a href="pages/production.html" class="nav-card">
+                        <span class="nav-card-icon">🏭</span>
+                        <span class="nav-card-title">Atelier</span>
+                        <span class="nav-card-desc">Gérer la file de production</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="modules/simpact-core.js"></script>
+    <script>
+        // Auth
+        const user = SimpactCore.auth.checkAuth(['superadmin', 'admin', 'production', 'compta', 'commercial']);
+        document.getElementById('user-name').textContent = user.name;
+
+        // Mise à jour en temps réel
+        if (typeof BroadcastChannel !== 'undefined') {
+            const channel = new BroadcastChannel('simpact_orders');
+            channel.onmessage = (event) => {
+                if (event.data.type === 'NEW_ORDER' || event.data.type === 'STATUS_UPDATE') {
+                    updateDashboard();
+                }
+            };
+        }
+
+        function updateDashboard() {
+            // Stats
+            const revenue = SimpactCore.stats.getRevenue('today');
+            const production = SimpactCore.stats.getProductionQueue();
+            const alerts = SimpactCore.stock.checkAlerts();
+            const todayOrders = SimpactCore.orders.getAll().filter(o => {
+                return o.date === new Date().toLocaleDateString();
+            });
+
+            document.getElementById('stat-revenue').textContent = revenue.toFixed(2) + ' DT';
+            document.getElementById('stat-production').textContent = production.length;
+            document.getElementById('stat-alerts').textContent = alerts.length;
+            document.getElementById('stat-orders').textContent = todayOrders.length;
+
+            // File production (5 dernières)
+            const prodList = document.getElementById('production-list');
+            if (production.length === 0) {
+                prodList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: var(--space-xl);">Aucune commande en attente 🎉</p>';
+            } else {
+                prodList.innerHTML = production.slice(0, 5).map(o => `
+                    <div class="widget-item">
+                        <div class="widget-item-info">
+                            <h4>${o.prod}</h4>
+                            <p>${o.client} • Qté: ${o.qty}</p>
+                        </div>
+                        <div class="widget-item-meta">
+                            <div class="widget-item-price">${o.price} DT</div>
+                            <span class="widget-item-status badge badge-warning">${o.statusProd}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Alertes stock
+            const alertsDiv = document.getElementById('stock-alerts');
+            if (alerts.length === 0) {
+                alertsDiv.innerHTML = '<p style="color: var(--color-success); text-align: center; padding: var(--space-xl);">✅ Stock OK</p>';
+            } else {
+                alertsDiv.innerHTML = alerts.slice(0, 5).map(p => `
+                    <div class="stock-alert-item">
+                        <span class="stock-alert-name">${p.category} ${p.weight}g ${p.format}</span>
+                        <span class="stock-alert-qty">${p.qty} / ${p.threshold}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Dernières commandes
+            const ordersList = document.getElementById('orders-list');
+            const recentOrders = SimpactCore.orders.getAll().slice(0, 5);
+            if (recentOrders.length === 0) {
+                ordersList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: var(--space-xl);">Aucune commande</p>';
+            } else {
+                ordersList.innerHTML = recentOrders.map(o => `
+                    <div class="widget-item">
+                        <div class="widget-item-info">
+                            <h4>${o.prod}</h4>
+                            <p>${o.client} • ${o.date}</p>
+                        </div>
+                        <div class="widget-item-meta">
+                            <div class="widget-item-price">${o.price} DT</div>
+                            <span class="widget-item-status badge ${o.statusProd === 'Terminé' ? 'badge-success' : 'badge-info'}">${o.statusProd}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Premier chargement
+        updateDashboard();
+        
+        // Refresh toutes les 10 secondes
+        setInterval(updateDashboard, 10000);
+    </script>
+</body>
+</html>

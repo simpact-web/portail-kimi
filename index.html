@@ -18,77 +18,163 @@
         .login-container {
             width: 100%;
             max-width: 420px;
-            padding: var(--space-xl);
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .reset-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
         
         .login-box {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: var(--space-2xl);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-xl);
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 3rem;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
         }
         
         .login-logo {
             text-align: center;
-            margin-bottom: var(--space-xl);
+            margin-bottom: 2rem;
         }
         
         .login-logo h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: var(--space-sm);
+            margin-bottom: 0.5rem;
         }
         
         .login-logo p {
-            color: var(--text-secondary);
+            color: #94a3b8;
         }
         
         .login-form {
             display: flex;
             flex-direction: column;
-            gap: var(--space-lg);
+            gap: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
         }
         
         .login-error {
             background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--color-danger);
-            color: var(--color-danger);
-            padding: var(--space-md);
-            border-radius: var(--radius-md);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
             display: none;
-            animation: shake 0.5s;
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+        }
+        
+        .btn-ghost:hover {
+            background: #334155;
+            color: #f1f5f9;
+        }
+        
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+        }
+        
+        .btn-block {
+            width: 100%;
         }
         
         .superadmin-menu {
             display: none;
+        }
+        
+        .superadmin-menu.active {
+            display: block;
             animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .module-grid {
             display: grid;
-            gap: var(--space-md);
-            margin-top: var(--space-xl);
+            gap: 1rem;
+            margin-top: 2rem;
         }
         
         .module-btn {
             display: flex;
             align-items: center;
-            gap: var(--space-md);
-            padding: var(--space-lg);
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            color: var(--text-primary);
+            gap: 1rem;
+            padding: 1rem;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            color: #f1f5f9;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.2s;
@@ -96,37 +182,35 @@
         
         .module-btn:hover {
             transform: translateY(-2px);
-            border-color: var(--color-primary);
-            background: var(--bg-elevated);
+            border-color: #2563eb;
         }
         
-        .module-btn.commercial { border-left: 4px solid var(--color-commercial); }
-        .module-btn.production { border-left: 4px solid var(--color-production); }
-        .module-btn.compta { border-left: 4px solid var(--color-compta); }
-        .module-btn.admin { border-left: 4px solid var(--color-admin); }
-        .module-btn.client { border-left: 4px solid var(--color-client); }
-        
-        .module-icon {
-            font-size: 1.5rem;
-        }
+        .module-btn.commercial { border-left: 4px solid #2563eb; }
+        .module-btn.production { border-left: 4px solid #f59e0b; }
+        .module-btn.compta { border-left: 4px solid #10b981; }
+        .module-btn.admin { border-left: 4px solid #ef4444; }
+        .module-btn.client { border-left: 4px solid #8b5cf6; }
         
         .welcome-text {
             text-align: center;
-            color: var(--color-success);
+            color: #10b981;
             font-weight: 600;
-            margin-bottom: var(--space-lg);
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <button class="reset-btn" onclick="forceReset()" title="Effacer toutes les données locales">
+            🔄 Reset
+        </button>
+        
         <div class="login-box">
             <div class="login-logo">
                 <h1>SIMPACT</h1>
                 <p>ERP Imprimerie Numérique</p>
             </div>
             
-            <!-- Formulaire de login -->
             <form id="login-form" class="login-form" onsubmit="event.preventDefault(); attemptLogin();">
                 <div>
                     <label>Identifiant</label>
@@ -147,43 +231,42 @@
                 </button>
             </form>
             
-            <!-- Menu Super Admin (affiché après connexion) -->
             <div id="superadmin-menu" class="superadmin-menu">
-                <p class="welcome-text">👋 Bienvenue Youssef</p>
+                <p class="welcome-text">👋 Bienvenue <span id="admin-name"></span></p>
                 
                 <div class="module-grid">
                     <a href="dashboard.html" class="module-btn admin">
-                        <span class="module-icon">📊</span>
+                        <span>📊</span>
                         <span>Tableau de Bord Central</span>
                     </a>
                     
                     <a href="pages/commercial.html" class="module-btn commercial">
-                        <span class="module-icon">💼</span>
+                        <span>💼</span>
                         <span>Pôle Commercial</span>
                     </a>
                     
                     <a href="pages/production.html" class="module-btn production">
-                        <span class="module-icon">🏭</span>
+                        <span>🏭</span>
                         <span>Atelier Production</span>
                     </a>
                     
                     <a href="pages/compta.html" class="module-btn compta">
-                        <span class="module-icon">💰</span>
+                        <span>💰</span>
                         <span>Comptabilité</span>
                     </a>
                     
                     <a href="pages/admin.html" class="module-btn admin">
-                        <span class="module-icon">⚙️</span>
+                        <span>⚙️</span>
                         <span>Administration</span>
                     </a>
                     
                     <a href="pages/client.html" class="module-btn client">
-                        <span class="module-icon">🌍</span>
-                        <span>Vue Client</span>
+                        <span>🌍</span>
+                        <span>Vue Client (Démo)</span>
                     </a>
                 </div>
                 
-                <button onclick="logout()" class="btn btn-ghost btn-block" style="margin-top: var(--space-xl);">
+                <button onclick="logout()" class="btn btn-ghost btn-block" style="margin-top: 2rem;">
                     Déconnexion
                 </button>
             </div>
@@ -192,17 +275,51 @@
 
     <script src="modules/simpact-core.js"></script>
     <script>
-        // Vérifier si déjà connecté au chargement
+        let initialCheckDone = false;
+        
         window.addEventListener('DOMContentLoaded', () => {
+            if (initialCheckDone) return;
+            initialCheckDone = true;
+            
             const user = SimpactCore.auth.getCurrentUser();
+            
             if (user) {
+                document.getElementById('login-form').style.display = 'none';
+                
                 if (user.role === 'superadmin') {
-                    showSuperAdminMenu();
+                    document.getElementById('admin-name').textContent = user.name;
+                    document.getElementById('superadmin-menu').classList.add('active');
                 } else {
-                    window.location.href = user.redirect;
+                    showLimitedMenu(user);
                 }
             }
         });
+        
+        function showLimitedMenu(user) {
+            document.getElementById('admin-name').textContent = user.name;
+            const menu = document.getElementById('superadmin-menu');
+            menu.classList.add('active');
+            
+            const allowedPages = {
+                'commercial': ['commercial'],
+                'production': ['production'],
+                'compta': ['compta'],
+                'client': ['client'],
+                'admin': ['dashboard', 'commercial', 'production', 'compta', 'admin']
+            };
+            
+            const allowed = allowedPages[user.role] || [];
+            const buttons = menu.querySelectorAll('.module-btn');
+            
+            buttons.forEach(btn => {
+                const href = btn.getAttribute('href');
+                const pageName = href.split('/').pop().replace('.html', '');
+                
+                if (!allowed.includes(pageName) && pageName !== 'dashboard') {
+                    btn.style.display = 'none';
+                }
+            });
+        }
         
         function attemptLogin() {
             const id = document.getElementById('login-id').value.trim();
@@ -212,8 +329,11 @@
             const user = SimpactCore.auth.login(id, pass);
             
             if (user) {
+                document.getElementById('login-form').style.display = 'none';
+                
                 if (user.role === 'superadmin') {
-                    showSuperAdminMenu();
+                    document.getElementById('admin-name').textContent = user.name;
+                    document.getElementById('superadmin-menu').classList.add('active');
                 } else {
                     window.location.href = user.redirect;
                 }
@@ -225,9 +345,12 @@
             }
         }
         
-        function showSuperAdminMenu() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('superadmin-menu').style.display = 'block';
+        function forceReset() {
+            if (confirm('Effacer toutes les données locales ?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.reload();
+            }
         }
     </script>
 </body>

@@ -1,5 +1,7 @@
-/**
- * SIMPACT CORE v2.0
+
+# Création du fichier simpact-core.js corrigé
+simpact_core_js = '''/**
+ * SIMPACT CORE v2.1 - CORRIGÉ
  * Cœur du système : Authentification, Données, Synchronisation Cloud
  */
 
@@ -45,7 +47,11 @@ const SimpactCore = {
         checkAuth(allowedRoles) {
             const session = localStorage.getItem('SIMPACT_USER');
             if (!session) {
-                window.location.href = '../index.html';
+                // CORRECTION: Redirection vers index.html au lieu de boucler
+                const currentPage = window.location.pathname.split('/').pop();
+                if (currentPage !== 'index.html' && currentPage !== '') {
+                    window.location.href = '../index.html';
+                }
                 return null;
             }
 
@@ -61,7 +67,12 @@ const SimpactCore = {
                 
                 if (!roles.includes(user.role)) {
                     alert("⛔ Accès interdit à cette zone !");
-                    window.location.href = user.redirect;
+                    // CORRECTION: Redirection vers la page d'accueil appropriée
+                    if (user.redirect) {
+                        window.location.href = user.redirect;
+                    } else {
+                        window.location.href = '../index.html';
+                    }
                     return null;
                 }
 
@@ -429,3 +440,9 @@ window.updateOrderStatus = (r, s, t) => SimpactCore.orders.updateStatus(r, s, t)
 window.getAllUsers = () => SimpactCore.auth.getAllUsers();
 window.saveUser = (u) => SimpactCore.auth.saveUser(u);
 window.deleteUser = (id) => SimpactCore.auth.deleteUser(id);
+'''
+
+with open('/mnt/kimi/output/simpact-core.js', 'w', encoding='utf-8') as f:
+    f.write(simpact_core_js)
+
+print("✅ simpact-core.js créé")

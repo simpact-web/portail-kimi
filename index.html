@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpact ERP - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="modules/simpact-theme.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: var(--space-xl);
+        }
+        
+        .login-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .login-logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .login-logo p {
+            color: var(--text-secondary);
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+        
+        .login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--color-danger);
+            color: var(--color-danger);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            display: none;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .superadmin-menu {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .module-grid {
+            display: grid;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+        
+        .module-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .module-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+            background: var(--bg-elevated);
+        }
+        
+        .module-btn.commercial { border-left: 4px solid var(--color-commercial); }
+        .module-btn.production { border-left: 4px solid var(--color-production); }
+        .module-btn.compta { border-left: 4px solid var(--color-compta); }
+        .module-btn.admin { border-left: 4px solid var(--color-admin); }
+        .module-btn.client { border-left: 4px solid var(--color-client); }
+        
+        .module-icon {
+            font-size: 1.5rem;
+        }
+        
+        .welcome-text {
+            text-align: center;
+            color: var(--color-success);
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>SIMPACT</h1>
+                <p>ERP Imprimerie Numérique</p>
+            </div>
+            
+            <!-- Formulaire de login -->
+            <form id="login-form" class="login-form" onsubmit="event.preventDefault(); attemptLogin();">
+                <div>
+                    <label>Identifiant</label>
+                    <input type="text" id="login-id" placeholder="Ex: youssef" autocomplete="username" required>
+                </div>
+                
+                <div>
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+                
+                <div id="login-error" class="login-error">
+                    Identifiant ou mot de passe incorrect
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    Se connecter
+                </button>
+            </form>
+            
+            <!-- Menu Super Admin (affiché après connexion) -->
+            <div id="superadmin-menu" class="superadmin-menu">
+                <p class="welcome-text">👋 Bienvenue Youssef</p>
+                
+                <div class="module-grid">
+                    <a href="dashboard.html" class="module-btn admin">
+                        <span class="module-icon">📊</span>
+                        <span>Tableau de Bord Central</span>
+                    </a>
+                    
+                    <a href="pages/commercial.html" class="module-btn commercial">
+                        <span class="module-icon">💼</span>
+                        <span>Pôle Commercial</span>
+                    </a>
+                    
+                    <a href="pages/production.html" class="module-btn production">
+                        <span class="module-icon">🏭</span>
+                        <span>Atelier Production</span>
+                    </a>
+                    
+                    <a href="pages/compta.html" class="module-btn compta">
+                        <span class="module-icon">💰</span>
+                        <span>Comptabilité</span>
+                    </a>
+                    
+                    <a href="pages/admin.html" class="module-btn admin">
+                        <span class="module-icon">⚙️</span>
+                        <span>Administration</span>
+                    </a>
+                    
+                    <a href="pages/client.html" class="module-btn client">
+                        <span class="module-icon">🌍</span>
+                        <span>Vue Client</span>
+                    </a>
+                </div>
+                
+                <button onclick="logout()" class="btn btn-ghost btn-block" style="margin-top: var(--space-xl);">
+                    Déconnexion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="modules/simpact-core.js"></script>
+    <script>
+        // Vérifier si déjà connecté au chargement
+        window.addEventListener('DOMContentLoaded', () => {
+            const user = SimpactCore.auth.getCurrentUser();
+            if (user) {
+                if (user.role === 'superadmin') {
+                    showSuperAdminMenu();
+                } else {
+                    window.location.href = user.redirect;
+                }
+            }
+        });
+        
+        function attemptLogin() {
+            const id = document.getElementById('login-id').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const errorDiv = document.getElementById('login-error');
+            
+            const user = SimpactCore.auth.login(id, pass);
+            
+            if (user) {
+                if (user.role === 'superadmin') {
+                    showSuperAdminMenu();
+                } else {
+                    window.location.href = user.redirect;
+                }
+            } else {
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        function showSuperAdminMenu() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('superadmin-menu').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

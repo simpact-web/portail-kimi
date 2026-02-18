@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+
+# Création du fichier index.html corrigé
+index_html = '''<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -197,6 +199,16 @@
             font-weight: 600;
             margin-bottom: 1.5rem;
         }
+        
+        .client-redirect {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .client-redirect p {
+            margin-bottom: 1.5rem;
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -211,6 +223,7 @@
                 <p>ERP Imprimerie Numérique</p>
             </div>
             
+            <!-- Formulaire de connexion -->
             <form id="login-form" class="login-form" onsubmit="event.preventDefault(); attemptLogin();">
                 <div>
                     <label>Identifiant</label>
@@ -231,6 +244,7 @@
                 </button>
             </form>
             
+            <!-- Menu SuperAdmin -->
             <div id="superadmin-menu" class="superadmin-menu">
                 <p class="welcome-text">👋 Bienvenue <span id="admin-name"></span></p>
                 
@@ -270,11 +284,21 @@
                     Déconnexion
                 </button>
             </div>
+            
+            <!-- Redirection Client -->
+            <div id="client-redirect" class="client-redirect" style="display: none;">
+                <p class="welcome-text">👋 Bienvenue <span id="client-name"></span></p>
+                <p>Redirection vers votre espace client...</p>
+                <a href="pages/client.html" class="btn btn-primary btn-block">
+                    Accéder à mon espace
+                </a>
+            </div>
         </div>
     </div>
 
     <script src="modules/simpact-core.js"></script>
     <script>
+        // CORRECTION: Gestion améliorée de l'authentification
         let initialCheckDone = false;
         
         window.addEventListener('DOMContentLoaded', () => {
@@ -284,42 +308,29 @@
             const user = SimpactCore.auth.getCurrentUser();
             
             if (user) {
+                // Cacher le formulaire de connexion
                 document.getElementById('login-form').style.display = 'none';
                 
-                if (user.role === 'superadmin') {
+                // CORRECTION: Redirection selon le rôle
+                if (user.role === 'superadmin' || user.role === 'admin') {
+                    // SuperAdmin/Admin: afficher le menu complet
                     document.getElementById('admin-name').textContent = user.name;
                     document.getElementById('superadmin-menu').classList.add('active');
+                } else if (user.role === 'client') {
+                    // CORRECTION: Client - afficher la redirection au lieu de boucler
+                    document.getElementById('client-name').textContent = user.name;
+                    document.getElementById('client-redirect').style.display = 'block';
+                    
+                    // Redirection automatique après 2 secondes (optionnel)
+                    setTimeout(() => {
+                        window.location.href = user.redirect;
+                    }, 2000);
                 } else {
-                    showLimitedMenu(user);
+                    // Autres rôles: redirection directe vers leur page
+                    window.location.href = user.redirect;
                 }
             }
         });
-        
-        function showLimitedMenu(user) {
-            document.getElementById('admin-name').textContent = user.name;
-            const menu = document.getElementById('superadmin-menu');
-            menu.classList.add('active');
-            
-            const allowedPages = {
-                'commercial': ['commercial'],
-                'production': ['production'],
-                'compta': ['compta'],
-                'client': ['client'],
-                'admin': ['dashboard', 'commercial', 'production', 'compta', 'admin']
-            };
-            
-            const allowed = allowedPages[user.role] || [];
-            const buttons = menu.querySelectorAll('.module-btn');
-            
-            buttons.forEach(btn => {
-                const href = btn.getAttribute('href');
-                const pageName = href.split('/').pop().replace('.html', '');
-                
-                if (!allowed.includes(pageName) && pageName !== 'dashboard') {
-                    btn.style.display = 'none';
-                }
-            });
-        }
         
         function attemptLogin() {
             const id = document.getElementById('login-id').value.trim();
@@ -331,10 +342,19 @@
             if (user) {
                 document.getElementById('login-form').style.display = 'none';
                 
-                if (user.role === 'superadmin') {
+                if (user.role === 'superadmin' || user.role === 'admin') {
                     document.getElementById('admin-name').textContent = user.name;
                     document.getElementById('superadmin-menu').classList.add('active');
+                } else if (user.role === 'client') {
+                    // CORRECTION: Redirection client propre
+                    document.getElementById('client-name').textContent = user.name;
+                    document.getElementById('client-redirect').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = user.redirect;
+                    }, 1500);
                 } else {
+                    // Redirection immédiate pour les autres rôles
                     window.location.href = user.redirect;
                 }
             } else {
@@ -354,4 +374,9 @@
         }
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/kimi/output/index.html', 'w', encoding='utf-8') as f:
+    f.write(index_html)
+
+print("✅ index.html créé")

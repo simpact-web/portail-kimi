@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+
+# Création du fichier client.html corrigé
+client_html = '''<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -44,212 +46,260 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        .auth-error {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-secondary);
+        }
+        
+        .auth-error h2 {
+            color: var(--color-danger);
+            margin-bottom: var(--space-md);
+        }
+        
+        .auth-error a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <div class="container client-container">
-        <div class="header">
-            <div>
-                <h1>👋 Espace Client</h1>
-                <p class="header-subtitle">Bienvenue <span id="client-name">--</span></p>
-            </div>
-            <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
-        </div>
-
-        <div class="card">
-            <h2 class="card-title">Nouvelle Commande</h2>
-            
-            <div class="form-group">
-                <label>Produit</label>
-                <select id="prod-type" onchange="onProductChange()">
-                    <option value="">-- Sélectionner un produit --</option>
-                    <option value="flyer">Flyers</option>
-                    <option value="carte">Cartes de visite</option>
-                    <option value="depliant">Dépliants 3 volets</option>
-                    <option value="entete">Papier à en-tête</option>
-                    <option value="brochure">Brochure couleur</option>
-                    <option value="livre">Livre N&B</option>
-                    <option value="affiches">Affiches Grand Format</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Quantité</label>
-                <input type="number" id="qty" placeholder="Ex: 1000" min="1">
-            </div>
-
-            <!-- Options identiques à commercial.html mais simplifiées -->
-            <div id="flyer-options" class="option-group">
-                <div class="form-group">
-                    <label>Impression</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="flyer-mode" value="recto" id="fr" checked>
-                            <label for="fr">Recto</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="flyer-mode" value="rectoVerso" id="frv">
-                            <label for="frv">R/V</label>
-                        </div>
-                    </div>
+    <div id="app-content" style="display: none;">
+        <div class="container client-container">
+            <div class="header">
+                <div>
+                    <h1>👋 Espace Client</h1>
+                    <p class="header-subtitle">Bienvenue <span id="client-name">--</span></p>
                 </div>
+                <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Nouvelle Commande</h2>
+                
                 <div class="form-group">
-                    <label>Papier</label>
-                    <select id="flyer-paper">
-                        <option value="couche-90-mat">Couché 90gr Mat</option>
-                        <option value="couche-135-mat">Couché 135gr Mat</option>
-                        <option value="couche-170-mat">Couché 170gr Mat</option>
+                    <label>Produit</label>
+                    <select id="prod-type" onchange="onProductChange()">
+                        <option value="">-- Sélectionner un produit --</option>
+                        <option value="flyer">Flyers</option>
+                        <option value="carte">Cartes de visite</option>
+                        <option value="depliant">Dépliants 3 volets</option>
+                        <option value="entete">Papier à en-tête</option>
+                        <option value="brochure">Brochure couleur</option>
+                        <option value="livre">Livre N&B</option>
+                        <option value="affiches">Affiches Grand Format</option>
                     </select>
                 </div>
-            </div>
 
-            <div id="carte-options" class="option-group">
                 <div class="form-group">
-                    <label>Finition</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="carte-finish" value="recto" id="cr" checked>
-                            <label for="cr">Standard</label>
+                    <label>Quantité</label>
+                    <input type="number" id="qty" placeholder="Ex: 1000" min="1">
+                </div>
+
+                <!-- Options Flyers -->
+                <div id="flyer-options" class="option-group">
+                    <div class="form-group">
+                        <label>Impression</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="flyer-mode" value="recto" id="fr" checked>
+                                <label for="fr">Recto</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="flyer-mode" value="rectoVerso" id="frv">
+                                <label for="frv">R/V</label>
+                            </div>
                         </div>
-                        <div class="radio-option">
-                            <input type="radio" name="carte-finish" value="pellicule" id="cp">
-                            <label for="cp">Pelliculé</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Papier</label>
-                    <select id="carte-paper">
-                        <option value="couche-300-mat">Couché 300gr Mat</option>
-                        <option value="couche-350-mat">Couché 350gr Mat</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="depliant-options" class="option-group">
-                <div class="form-group">
-                    <label>Papier</label>
-                    <select id="depliant-paper">
-                        <option value="couche-115-mat">Couché 115gr Mat</option>
-                        <option value="couche-135-mat">Couché 135gr Mat</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="entete-options" class="option-group">
-                <div class="form-group">
-                    <label>Papier</label>
-                    <select id="entete-paper">
-                        <option value="offset-80">Offset 80gr Standard</option>
-                        <option value="offset-100">Offset 100gr Premium</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="brochure-options" class="option-group">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Format</label>
-                        <select id="brochure-format">
-                            <option value="a4">A4</option>
-                            <option value="a5">A5</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Pages</label>
-                        <input type="number" id="brochure-pages" placeholder="Multiple de 4" min="4" step="4">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Pelliculage Couverture</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="brochure-pelliculage" value="sans" id="bps" checked>
-                            <label for="bps">Non</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="brochure-pelliculage" value="avec" id="bpa">
-                            <label for="bpa">Oui</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="livre-options" class="option-group">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Format</label>
-                        <select id="livre-format">
-                            <option value="a4">A4</option>
-                            <option value="a5">A5</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Pages</label>
-                        <input type="number" id="livre-pages" placeholder="Ex: 50" min="1">
-                    </div>
-                </div>
-            </div>
-
-            <div id="affiches-options" class="option-group">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Format</label>
-                        <select id="affiche-format">
-                            <option value="a3">A3 (30x42 cm)</option>
-                            <option value="a3plus">A3+ (32x48 cm)</option>
-                        </select>
                     </div>
                     <div class="form-group">
                         <label>Papier</label>
-                        <select id="affiche-paper">
+                        <select id="flyer-paper">
+                            <option value="couche-90-mat">Couché 90gr Mat</option>
                             <option value="couche-135-mat">Couché 135gr Mat</option>
                             <option value="couche-170-mat">Couché 170gr Mat</option>
                         </select>
                     </div>
                 </div>
-            </div>
 
-            <div class="pao-section">
-                <div class="form-group">
-                    <label>🎨 Service Création Graphique</label>
-                    <select id="pao-service" onchange="updatePAODescription()">
-                        <option value="none">J'ai mon fichier PDF prêt (Gratuit)</option>
-                        <option value="conception">✨ Conception (Création complète)</option>
-                        <option value="layout">📄 Mise en page</option>
-                        <option value="correction">🔍 Correction simple</option>
-                    </select>
-                    <p id="pao-desc" class="pao-info">Aucun frais supplémentaire.</p>
+                <!-- Options Cartes -->
+                <div id="carte-options" class="option-group">
+                    <div class="form-group">
+                        <label>Finition</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="carte-finish" value="recto" id="cr" checked>
+                                <label for="cr">Standard</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="carte-finish" value="pellicule" id="cp">
+                                <label for="cp">Pelliculé</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="carte-paper">
+                            <option value="couche-300-mat">Couché 300gr Mat</option>
+                            <option value="couche-350-mat">Couché 350gr Mat</option>
+                        </select>
+                    </div>
                 </div>
+
+                <!-- Options Dépliants -->
+                <div id="depliant-options" class="option-group">
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="depliant-paper">
+                            <option value="couche-115-mat">Couché 115gr Mat</option>
+                            <option value="couche-135-mat">Couché 135gr Mat</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options En-têtes -->
+                <div id="entete-options" class="option-group">
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="entete-paper">
+                            <option value="offset-80">Offset 80gr Standard</option>
+                            <option value="offset-100">Offset 100gr Premium</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options Brochures -->
+                <div id="brochure-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="brochure-format">
+                                <option value="a4">A4</option>
+                                <option value="a5">A5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pages</label>
+                            <input type="number" id="brochure-pages" placeholder="Multiple de 4" min="4" step="4">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Pelliculage Couverture</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="brochure-pelliculage" value="sans" id="bps" checked>
+                                <label for="bps">Non</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="brochure-pelliculage" value="avec" id="bpa">
+                                <label for="bpa">Oui</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Options Livres -->
+                <div id="livre-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="livre-format">
+                                <option value="a4">A4</option>
+                                <option value="a5">A5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pages</label>
+                            <input type="number" id="livre-pages" placeholder="Ex: 50" min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Options Affiches -->
+                <div id="affiches-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="affiche-format">
+                                <option value="a3">A3 (30x42 cm)</option>
+                                <option value="a3plus">A3+ (32x48 cm)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Papier</label>
+                            <select id="affiche-paper">
+                                <option value="couche-135-mat">Couché 135gr Mat</option>
+                                <option value="couche-170-mat">Couché 170gr Mat</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pao-section">
+                    <div class="form-group">
+                        <label>🎨 Service Création Graphique</label>
+                        <select id="pao-service" onchange="updatePAODescription()">
+                            <option value="none">J'ai mon fichier PDF prêt (Gratuit)</option>
+                            <option value="conception">✨ Conception (Création complète)</option>
+                            <option value="layout">📄 Mise en page</option>
+                            <option value="correction">🔍 Correction simple</option>
+                        </select>
+                        <p id="pao-desc" class="pao-info">Aucun frais supplémentaire.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Remarques / Instructions</label>
+                    <textarea id="desc" rows="3" placeholder="Ex: Découpe spéciale..."></textarea>
+                </div>
+
+                <button class="btn btn-primary btn-lg btn-block" onclick="calculateQuote()">
+                    💰 ESTIMER MON PRIX
+                </button>
+
+                <div class="price-display" style="margin: var(--space-xl) 0;">
+                    <div class="price-label">Total HT Estimé</div>
+                    <div class="price-value" id="total-price">-- DT</div>
+                </div>
+
+                <button class="btn btn-success btn-lg btn-block" id="btn-order" onclick="submitOrder()" disabled>
+                    ✅ VALIDER LA COMMANDE
+                </button>
             </div>
-
-            <div class="form-group">
-                <label>Remarques / Instructions</label>
-                <textarea id="desc" rows="3" placeholder="Ex: Découpe spéciale..."></textarea>
-            </div>
-
-            <button class="btn btn-primary btn-lg btn-block" onclick="calculateQuote()">
-                💰 ESTIMER MON PRIX
-            </button>
-
-            <div class="price-display" style="margin: var(--space-xl) 0;">
-                <div class="price-label">Total HT Estimé</div>
-                <div class="price-value" id="total-price">-- DT</div>
-            </div>
-
-            <button class="btn btn-success btn-lg btn-block" id="btn-order" onclick="submitOrder()" disabled>
-                ✅ VALIDER LA COMMANDE
-            </button>
         </div>
+    </div>
+
+    <!-- Message d'erreur d'authentification -->
+    <div id="auth-error" class="auth-error" style="display: none;">
+        <h2>⛔ Accès refusé</h2>
+        <p>Vous devez être connecté en tant que client pour accéder à cette page.</p>
+        <p><a href="../index.html">Retour à la page de connexion</a></p>
     </div>
 
     <script src="../modules/simpact-core.js"></script>
     <script src="../modules/pricing-engine.js"></script>
     <script>
-        const user = SimpactCore.auth.checkAuth('client');
-        document.getElementById('client-name').textContent = user.name;
-
-        PricingEngine.init();
+        // CORRECTION: Vérification d'authentification avec gestion d'erreur
+        let user = null;
+        
+        try {
+            user = SimpactCore.auth.checkAuth('client');
+            
+            if (!user) {
+                // Si pas d'utilisateur, afficher l'erreur (la redirection est déjà faite dans checkAuth)
+                document.getElementById('auth-error').style.display = 'block';
+            } else {
+                // Utilisateur connecté, afficher le contenu
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('client-name').textContent = user.name;
+                
+                // Initialiser le pricing engine
+                PricingEngine.init();
+            }
+        } catch (e) {
+            console.error('Erreur auth:', e);
+            document.getElementById('auth-error').style.display = 'block';
+        }
 
         let currentPrice = 0;
         let currentConfig = null;
@@ -354,12 +404,12 @@
             
             const order = {
                 ref: 'WEB-' + Date.now().toString().slice(-5),
-                client: user.name,
+                client: user ? user.name : 'Client Web',
                 prod: document.getElementById('prod-type').selectedOptions[0].text,
                 qty: document.getElementById('qty').value,
                 price: currentPrice.toFixed(2),
                 desc: PricingEngine.generateConfigString(currentConfig.type, currentConfig.options, currentConfig.paoOptions) + 
-                      '\nNote: ' + currentConfig.desc,
+                      '\\nNote: ' + currentConfig.desc,
                 user: 'CLIENT WEB',
                 statusProd: 'À Valider (Web)',
                 statusCompta: 'Non payé',
@@ -373,4 +423,9 @@
         }
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/kimi/output/client.html', 'w', encoding='utf-8') as f:
+    f.write(client_html)
+
+print("✅ client.html créé")

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpact - Commercial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../modules/simpact-theme.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .layout {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: var(--space-xl);
+        }
+        
+        .option-group {
+            display: none;
+            background: var(--bg-tertiary);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            margin: var(--space-lg) 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        .option-group.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .summary-card {
+            position: sticky;
+            top: var(--space-xl);
+            height: fit-content;
+        }
+        
+        .workflow-panel {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .workflow-panel.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .pdf-actions {
+            display: grid;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+        }
+        
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .summary-card {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>💼 Pôle Commercial</h1>
+                <p class="header-subtitle">Création de devis et commandes</p>
+            </div>
+            <div style="display: flex; gap: var(--space-md); align-items: center;">
+                <span class="user-badge" id="user-name">--</span>
+                <button class="btn btn-secondary" onclick="window.location.href='../dashboard.html'">
+                    📊 Dashboard
+                </button>
+                <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+
+        <div class="layout">
+            <!-- Configuration -->
+            <div class="card">
+                <h2 class="card-title">Configuration du Devis</h2>
+                
+                <div class="form-group">
+                    <label>Client</label>
+                    <input type="text" id="client-name" placeholder="Nom du client...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Produit</label>
+                        <select id="product-type" onchange="onProductChange()">
+                            <option value="">-- Sélectionner --</option>
+                            <option value="flyer">Flyers</option>
+                            <option value="carte">Cartes de visite</option>
+                            <option value="depliant">Dépliants 3 volets</option>
+                            <option value="entete">Papier à en-tête</option>
+                            <option value="brochure">Brochure couleur</option>
+                            <option value="livre">Livre N&B</option>
+                            <option value="affiches">Affiches Grand Format</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantité</label>
+                        <input type="number" id="quantity" placeholder="Ex: 500" min="1">
+                    </div>
+                </div>
+
+                <!-- Options Flyers -->
+                <div id="flyer-options" class="option-group">
+                    <div class="form-group">
+                        <label>Impression</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="flyer-mode" value="recto" id="fr" checked>
+                                <label for="fr">Recto</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="flyer-mode" value="rectoVerso" id="frv">
+                                <label for="frv">R/V</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="flyer-paper">
+                            <option value="couche-90-mat">Couché 90gr Mat</option>
+                            <option value="couche-90-brillant">Couché 90gr Brillant</option>
+                            <option value="couche-115-mat">Couché 115gr Mat</option>
+                            <option value="couche-115-brillant">Couché 115gr Brillant</option>
+                            <option value="couche-135-mat">Couché 135gr Mat</option>
+                            <option value="couche-135-brillant">Couché 135gr Brillant</option>
+                            <option value="couche-170-mat">Couché 170gr Mat</option>
+                            <option value="couche-170-brillant">Couché 170gr Brillant</option>
+                            <option value="couche-200-mat">Couché 200gr Mat</option>
+                            <option value="couche-200-brillant">Couché 200gr Brillant</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options Cartes -->
+                <div id="carte-options" class="option-group">
+                    <div class="form-group">
+                        <label>Finition</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="carte-finish" value="recto" id="cr" checked>
+                                <label for="cr">Standard</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="carte-finish" value="pellicule" id="cp">
+                                <label for="cp">Pelliculé</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="carte-paper">
+                            <option value="couche-300-mat">Couché 300gr Mat</option>
+                            <option value="couche-300-brillant">Couché 300gr Brillant</option>
+                            <option value="couche-350-mat">Couché 350gr Mat</option>
+                            <option value="couche-350-brillant">Couché 350gr Brillant</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options Dépliants -->
+                <div id="depliant-options" class="option-group">
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="depliant-paper">
+                            <option value="couche-115-mat">Couché 115gr Mat</option>
+                            <option value="couche-115-brillant">Couché 115gr Brillant</option>
+                            <option value="couche-135-mat">Couché 135gr Mat</option>
+                            <option value="couche-135-brillant">Couché 135gr Brillant</option>
+                            <option value="couche-170-mat">Couché 170gr Mat</option>
+                            <option value="couche-170-brillant">Couché 170gr Brillant</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options En-têtes -->
+                <div id="entete-options" class="option-group">
+                    <div class="form-group">
+                        <label>Papier</label>
+                        <select id="entete-paper">
+                            <option value="offset-80">Offset 80gr Standard</option>
+                            <option value="offset-100">Offset 100gr Premium</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Options Brochures -->
+                <div id="brochure-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="brochure-format">
+                                <option value="a4">A4 (21x29.7 cm)</option>
+                                <option value="a5">A5 (14.8x21 cm)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pages (Multiple de 4)</label>
+                            <input type="number" id="brochure-pages" placeholder="Ex: 8, 12, 16..." min="4" step="4">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Papier Intérieur</label>
+                            <select id="brochure-interior-paper">
+                                <option value="couche-90-mat">Couché 90gr Mat</option>
+                                <option value="couche-90-brillant">Couché 90gr Brillant</option>
+                                <option value="couche-115-mat">Couché 115gr Mat</option>
+                                <option value="couche-115-brillant">Couché 115gr Brillant</option>
+                                <option value="offset-80">Offset 80gr</option>
+                                <option value="offset-100">Offset 100gr</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Papier Couverture</label>
+                            <select id="brochure-cover-paper">
+                                <option value="couche-250-mat">Couché 250gr Mat</option>
+                                <option value="couche-250-brillant">Couché 250gr Brillant</option>
+                                <option value="couche-300-mat">Couché 300gr Mat</option>
+                                <option value="couche-300-brillant">Couché 300gr Brillant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Type Couv.</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" name="brochure-cover-type" value="recto" id="bcr" checked>
+                                    <label for="bcr">Recto</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="brochure-cover-type" value="rectoVerso" id="bcrv">
+                                    <label for="bcrv">R/V</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Pelliculage</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" name="brochure-pelliculage" value="sans" id="bps" checked>
+                                    <label for="bps">Non</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="brochure-pelliculage" value="avec" id="bpa">
+                                    <label for="bpa">Oui</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Options Livres -->
+                <div id="livre-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="livre-format">
+                                <option value="a4">A4</option>
+                                <option value="a5">A5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pages</label>
+                            <input type="number" id="livre-pages" placeholder="Ex: 50" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Papier Intérieur</label>
+                            <select id="livre-interior-paper">
+                                <option value="offset-80">Offset 80gr</option>
+                                <option value="offset-100">Offset 100gr</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Papier Couverture</label>
+                            <select id="livre-cover-paper">
+                                <option value="couche-250-mat">Couché 250gr Mat</option>
+                                <option value="couche-250-brillant">Couché 250gr Brillant</option>
+                                <option value="couche-300-mat">Couché 300gr Mat</option>
+                                <option value="couche-300-brillant">Couché 300gr Brillant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Couv. Couleur</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" name="livre-cover-type" value="recto" id="lcr" checked>
+                                    <label for="lcr">Recto</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="livre-cover-type" value="rectoVerso" id="lcrv">
+                                    <label for="lcrv">R/V</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Pelliculage</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" name="livre-pelliculage" value="sans" id="lps" checked>
+                                    <label for="lps">Non</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="livre-pelliculage" value="avec" id="lpa">
+                                    <label for="lpa">Oui</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Options Affiches -->
+                <div id="affiches-options" class="option-group">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="affiche-format">
+                                <option value="a3">A3 (30x42 cm)</option>
+                                <option value="a3plus">A3+ (32x48 cm)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Papier</label>
+                            <select id="affiche-paper">
+                                <option value="couche-135-mat">Couché 135gr Mat</option>
+                                <option value="couche-135-brillant">Couché 135gr Brillant</option>
+                                <option value="couche-170-mat">Couché 170gr Mat</option>
+                                <option value="couche-170-brillant">Couché 170gr Brillant</option>
+                                <option value="couche-200-mat">Couché 200gr Mat</option>
+                                <option value="couche-200-brillant">Couché 200gr Brillant</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-lg btn-block" onclick="calculateQuote()">
+                    ⚡ Calculer le prix
+                </button>
+            </div>
+
+            <!-- Résumé -->
+            <div class="card summary-card">
+                <h2 class="card-title">💰 Résultat</h2>
+                
+                <div class="price-display">
+                    <div class="price-label">Total HT Estimé</div>
+                    <div class="price-value" id="total-price">0.00 DT</div>
+                </div>
+
+                <div style="margin-bottom: var(--space-lg);">
+                    <strong>Référence:</strong> <span id="quote-ref" style="font-family: var(--font-mono);">--</span>
+                </div>
+
+                <div id="workflow-panel" class="workflow-panel">
+                    <button class="btn btn-success btn-lg btn-block" onclick="validateOrder()">
+                        ✅ VALIDER LA COMMANDE
+                    </button>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); text-align: center; margin-top: var(--space-sm);">
+                        Envoie à la Production & Compta
+                    </p>
+
+                    <div class="pdf-actions">
+                        <button class="btn btn-secondary" onclick="generatePDF('compta')">
+                            📄 Bon de Commande
+                        </button>
+                        <button class="btn btn-warning" onclick="generatePDF('prod')">
+                            🏭 Fiche Atelier
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template PDF (caché) -->
+    <div id="pdf-template" style="display: none; background: white; color: black; padding: 40px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+            <div>
+                <h1 id="pdf-title" style="margin: 0; font-size: 28px;">DOCUMENT</h1>
+                <p style="margin: 5px 0;">Réf: <span id="pdf-ref"></span></p>
+            </div>
+            <div style="text-align: right;">
+                <h2 style="margin: 0; color: #2563eb;">SIMPACT</h2>
+                <p style="margin: 5px 0;">Imprimerie Numérique</p>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <strong>Client:</strong> <span id="pdf-client"></span><br>
+            <strong>Commercial:</strong> <span id="pdf-commercial"></span><br>
+            <strong>Date:</strong> <span id="pdf-date"></span>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <thead>
+                <tr style="background: #f1f5f9;">
+                    <th style="border: 1px solid #000; padding: 10px; text-align: left;">Désignation</th>
+                    <th style="border: 1px solid #000; padding: 10px; text-align: center;">Qté</th>
+                    <th style="border: 1px solid #000; padding: 10px; text-align: right;">Prix HT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 10px;">
+                        <strong id="pdf-prod"></strong><br>
+                        <pre id="pdf-desc" style="margin: 10px 0; white-space: pre-line; font-family: inherit;"></pre>
+                    </td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: center; font-size: 1.2em; font-weight: bold;" id="pdf-qty"></td>
+                    <td style="border: 1px solid #000; padding: 10px; text-align: right; font-size: 1.2em; font-weight: bold;" id="pdf-price"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../modules/simpact-core.js"></script>
+    <script src="../modules/pricing-engine.js"></script>
+    <script>
+        // Auth
+        const user = SimpactCore.auth.checkAuth(['commercial', 'admin', 'superadmin']);
+        document.getElementById('user-name').textContent = user.name;
+
+        // Init Pricing Engine
+        let currentQuote = null;
+
+        PricingEngine.init().then(() => {
+            console.log('✅ PricingEngine prêt');
+        });
+
+        function onProductChange() {
+            const type = document.getElementById('product-type').value;
+            
+            // Cacher tous les groupes
+            document.querySelectorAll('.option-group').forEach(g => g.classList.remove('active'));
+            
+            // Afficher le groupe correspondant
+            if (type) {
+                const group = document.getElementById(type + '-options');
+                if (group) group.classList.add('active');
+            }
+            
+            // Reset prix
+            resetQuote();
+        }
+
+        function resetQuote() {
+            document.getElementById('total-price').textContent = '0.00 DT';
+            document.getElementById('quote-ref').textContent = '--';
+            document.getElementById('workflow-panel').classList.remove('active');
+            currentQuote = null;
+        }
+
+        function calculateQuote() {
+            const type = document.getElementById('product-type').value;
+            const qty = parseInt(document.getElementById('quantity').value);
+            
+            if (!type || !qty) {
+                alert('Veuillez sélectionner un produit et une quantité');
+                return;
+            }
+
+            // Collecter les options selon le produit
+            let options = { quantity: qty };
+            
+            switch (type) {
+                case 'flyer':
+                    options.mode = document.querySelector('input[name="flyer-mode"]:checked').value;
+                    options.paper = document.getElementById('flyer-paper').value;
+                    break;
+                case 'carte':
+                    options.finish = document.querySelector('input[name="carte-finish"]:checked').value;
+                    options.paper = document.getElementById('carte-paper').value;
+                    break;
+                case 'depliant':
+                    options.paper = document.getElementById('depliant-paper').value;
+                    break;
+                case 'entete':
+                    options.paper = document.getElementById('entete-paper').value;
+                    break;
+                case 'brochure':
+                    options.format = document.getElementById('brochure-format').value;
+                    options.pages = document.getElementById('brochure-pages').value;
+                    options.coverType = document.querySelector('input[name="brochure-cover-type"]:checked').value;
+                    options.pelliculage = document.querySelector('input[name="brochure-pelliculage"]:checked').value;
+                    options.paperInt = document.getElementById('brochure-interior-paper').value;
+                    options.paperCov = document.getElementById('brochure-cover-paper').value;
+                    break;
+                case 'livre':
+                    options.format = document.getElementById('livre-format').value;
+                    options.pages = document.getElementById('livre-pages').value;
+                    options.coverType = document.querySelector('input[name="livre-cover-type"]:checked').value;
+                    options.pelliculage = document.querySelector('input[name="livre-pelliculage"]:checked').value;
+                    options.paperInt = document.getElementById('livre-interior-paper').value;
+                    options.paperCov = document.getElementById('livre-cover-paper').value;
+                    break;
+                case 'affiches':
+                    options.format = document.getElementById('affiche-format').value;
+                    options.paper = document.getElementById('affiche-paper').value;
+                    break;
+            }
+
+            // Calcul via PricingEngine
+            const result = PricingEngine.calculate(type, options, qty);
+            
+            if (result.error) {
+                alert('Erreur de calcul: ' + result.error);
+                return;
+            }
+
+            // Affichage
+            document.getElementById('total-price').textContent = result.totalPrice.toFixed(2) + ' DT';
+            document.getElementById('quote-ref').textContent = SimpactCore.orders.generateRef();
+            document.getElementById('workflow-panel').classList.add('active');
+
+            // Stockage pour validation
+            currentQuote = {
+                client: document.getElementById('client-name').value || 'Client Comptoir',
+                prod: document.getElementById('product-type').selectedOptions[0].text,
+                qty: qty,
+                price: result.totalPrice.toFixed(2),
+                ref: document.getElementById('quote-ref').textContent,
+                desc: PricingEngine.generateConfigString(type, options, null),
+                details: result.details,
+                user: user.name,
+                statusProd: 'En attente',
+                statusCompta: 'Non payé',
+                date: new Date().toLocaleDateString()
+            };
+        }
+
+        function validateOrder() {
+            if (!currentQuote) return;
+            
+            if (!confirm('Valider cette commande ?')) return;
+            
+            SimpactCore.orders.save(currentQuote);
+            
+            alert('✅ Commande envoyée à la Production !');
+            
+            // Reset
+            document.getElementById('product-type').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('client-name').value = '';
+            onProductChange();
+        }
+
+        function generatePDF(mode) {
+            if (!currentQuote) return;
+            
+            const template = document.getElementById('pdf-template');
+            const isCompta = mode === 'compta';
+            
+            document.getElementById('pdf-title').textContent = isCompta ? 'BON DE COMMANDE' : 'ORDRE DE FABRICATION';
+            document.getElementById('pdf-ref').textContent = currentQuote.ref;
+            document.getElementById('pdf-client').textContent = currentQuote.client;
+            document.getElementById('pdf-commercial').textContent = currentQuote.user;
+            document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('pdf-prod').textContent = currentQuote.prod.toUpperCase();
+            document.getElementById('pdf-desc').textContent = currentQuote.desc;
+            document.getElementById('pdf-qty').textContent = currentQuote.qty;
+            document.getElementById('pdf-price').textContent = currentQuote.price + ' DT';
+            
+            // Afficher temporairement pour PDF
+            template.style.display = 'block';
+            
+            const opt = {
+                margin: 10,
+                filename: `Simpact_${mode}_${currentQuote.ref}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().from(template).set(opt).save().then(() => {
+                template.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
